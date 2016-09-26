@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 
@@ -27,6 +26,8 @@ public class Maze {
 	
 	public Maze(String file) {
 		parseMazeFromFile(file);
+		findStart();
+		System.out.println(start.toString());
 	}
 	
 	/**
@@ -40,17 +41,19 @@ public class Maze {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			
 			// Get the number of rows and columns, which are on the first line
+			// Multiply by 2 and add 1 to calculate the actual number of rows 
+			// and columns in the text representation of the maze
 			String rowColLine = br.readLine();
-			this.rows = Integer.parseInt(rowColLine.substring(0, rowColLine.indexOf(' ')));
-			this.cols = Integer.parseInt(rowColLine.substring(rowColLine.indexOf(' ') + 1));
+			this.rows = Integer.parseInt(rowColLine.substring(0, rowColLine.indexOf(' '))) * 2 + 1;
+			this.cols = Integer.parseInt(rowColLine.substring(rowColLine.indexOf(' ') + 1)) * 2 + 1;
 			
 			// There are actually rows in between the maze rows, as
 			// well as the top and bottom rows indicating the outer walls.
 			// The total rows in our matrix are 2*mazeRows plus 1
-			mazeMatrix = new String[rows * 2 + 1];
+			mazeMatrix = new String[rows];
 			
 			// Add the maze rows to the String maze
-			for(int i = 0; i < mazeMatrix.length; i++) {
+			for(int i = 0; i < rows; i++) {
 				mazeMatrix[i] = br.readLine();
 			}
 			br.close();
@@ -60,28 +63,38 @@ public class Maze {
 		
 	}
 	
-	// TODO: check for walls
+	private void findStart() {
+		for(int row = 1; row < rows; row++) {
+			for(int col = 1; col < cols - 1; col++) {
+				if(mazeMatrix[row].charAt(col) == 'S') {
+					start = new SearchNode(row, col, 0, false, '\0', null);
+					break;
+				}
+			}
+		}
+	}
+	
 	public ArrayList<SearchNode> getNeighbors(SearchNode node) {
 		ArrayList<SearchNode> neighbors = new ArrayList<SearchNode>();
 		int row = node.getRow(); // row in the actual maze
 		int col = node.getCol(); // column in the actual maze
-		int matrixRow = row * 2 + 1; // row in the String[] matrix
-		int matrixCol = col * 2 + 1; // column in the String[] matrix
-		// Check up - If this space is not in the first row, add the space above it
-		if(row > 0 && mazeMatrix[matrixRow - 1].charAt(matrixCol) != '-') {
-			neighbors.add(new SearchNode(row - 1, col, 'N', node));
+		
+		// Check up - If this space is not in the row 1, add the space above it
+		if(row > 1 && mazeMatrix[row - 1].charAt(col) != '-') {
+			// Use row - 2 to get the row of the actual space, not the row with walls in between
+			neighbors.add(new SearchNode(row - 2, col, 'N', node));
 		}
 		// Check down - If this space is not in the last row, add space below it
-		if(row < rows - 1) {
-			neighbors.add(new SearchNode(row + 1, col, 'S', node));
+		if(row < rows - 2 && mazeMatrix[row + 1].charAt(col) != '-') {
+			neighbors.add(new SearchNode(row + 2, col, 'S', node));
 		}
 		// Check left - If this space is not at left edge, add space to left
-		if(col > 0) {
-			neighbors.add(new SearchNode(row, col - 1, 'W', node));
+		if(col > 1 && mazeMatrix[row].charAt(col - 1) != '|') {
+			neighbors.add(new SearchNode(row, col - 2, 'W', node));
 		}
 		// Check right - If this space is not at right edge, add space to right
-		if(col < cols - 1) {
-			neighbors.add(new SearchNode(row, col + 1, 'E', node));
+		if(col < cols - 2 && mazeMatrix[row].charAt(col + 1) != '|') {
+			neighbors.add(new SearchNode(row, col + 2, 'E', node));
 		}
 		return neighbors;
 	}
@@ -96,14 +109,10 @@ public class Maze {
 		int row = node.getRow();
 		int col = node.getCol();
 		// If we are at an edge, the cost is 11
-		if(row == 0 || row == rows - 1 || col == 0 || col == cols - 1) {
+		if(row <= 1 || row >= rows - 2 || col <= 1 || col >= cols - 2) {
 			return 11;
 		} else { // otherwise cost is 1
 			return 1;
 		}
-	}
-	
-	private int calcMatrix(int mazeRow) {
-		return mazeRow * 2 + 1;
 	}
 }

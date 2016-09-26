@@ -79,4 +79,7 @@ public class SearchNode {
 		this.parent = parent;
 	}
 	
+	public String toString() {
+		return "row " + row + "; col " + col + "; cost " + cost;
+	}
 }
