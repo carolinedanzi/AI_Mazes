@@ -6,25 +6,25 @@
 public class SearchNode {
 	private int row;
 	private int col;
+	private char val;
 	private int cost;
-	private boolean isFinish;
 	private char action;
 	private SearchNode parent;
 	
-	public SearchNode(int row, int col, int cost, boolean isFinish,
+	public SearchNode(int row, int col, char val, int cost,
 			char action, SearchNode parent) {
 		this.row = row;
 		this.col = col;
+		this.val = val;
 		this.cost = cost;
-		this.isFinish = isFinish;
 		this.action = action;
 		this.parent = parent;
 	}
 
-	public SearchNode(int row, int col, char action, SearchNode parent) {
-		super();
+	public SearchNode(int row, int col, char val, char action, SearchNode parent) {
 		this.row = row;
 		this.col = col;
+		this.val = val;
 		this.action = action;
 		this.parent = parent;
 	}
@@ -47,20 +47,20 @@ public class SearchNode {
 		this.col = col;
 	}
 
+	public char getVal() {
+		return val;
+	}
+
+	public void setVal(char val) {
+		this.val = val;
+	}
+
 	public int getCost() {
 		return cost;
 	}
 
 	public void setCost(int cost) {
 		this.cost = cost;
-	}
-
-	public boolean isFinish() {
-		return isFinish;
-	}
-
-	public void setFinish(boolean isFinish) {
-		this.isFinish = isFinish;
 	}
 
 	public char getAction() {
@@ -80,6 +80,6 @@ public class SearchNode {
 	}
 	
 	public String toString() {
-		return "row " + row + "; col " + col + "; cost " + cost;
+		return "row " + row + "; col " + col + "; val " + val + "; cost " + cost + "; action " + action;
 	}
 }

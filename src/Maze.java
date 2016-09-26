@@ -9,9 +9,6 @@ import java.util.ArrayList;
  *
  */
 public class Maze {
-	private int rows;
-	private int cols;
-	private SearchNode start;
 	private String[] mazeMatrix;
 	
 	public static void main(String[] args) {
@@ -22,12 +19,14 @@ public class Maze {
 		for(int i = 0; i < maze.mazeMatrix.length; i++) {
 			System.out.println(maze.mazeMatrix[i]);
 		}
+		ArrayList<SearchNode> nodes = maze.getNeighbors(maze.findStart());
+		for(SearchNode n : nodes) {
+			System.out.println(n.toString());
+		}
 	}
 	
 	public Maze(String file) {
 		parseMazeFromFile(file);
-		findStart();
-		System.out.println(start.toString());
 	}
 	
 	/**
@@ -44,8 +43,8 @@ public class Maze {
 			// Multiply by 2 and add 1 to calculate the actual number of rows 
 			// and columns in the text representation of the maze
 			String rowColLine = br.readLine();
-			this.rows = Integer.parseInt(rowColLine.substring(0, rowColLine.indexOf(' '))) * 2 + 1;
-			this.cols = Integer.parseInt(rowColLine.substring(rowColLine.indexOf(' ') + 1)) * 2 + 1;
+			int rows = Integer.parseInt(rowColLine.substring(0, rowColLine.indexOf(' '))) * 2 + 1;
+			int cols = Integer.parseInt(rowColLine.substring(rowColLine.indexOf(' ') + 1)) * 2 + 1;
 			
 			// There are actually rows in between the maze rows, as
 			// well as the top and bottom rows indicating the outer walls.
@@ -63,38 +62,44 @@ public class Maze {
 		
 	}
 	
-	private void findStart() {
+	public SearchNode findStart() {
+		int rows = mazeMatrix.length;
+		int cols = mazeMatrix[0].length();
+		
 		for(int row = 1; row < rows; row++) {
 			for(int col = 1; col < cols - 1; col++) {
 				if(mazeMatrix[row].charAt(col) == 'S') {
-					start = new SearchNode(row, col, 0, false, '\0', null);
-					break;
+					SearchNode start = new SearchNode(row, col, 'S', 0, ' ', null);
+					return start;
 				}
 			}
 		}
+		return null;
 	}
 	
 	public ArrayList<SearchNode> getNeighbors(SearchNode node) {
 		ArrayList<SearchNode> neighbors = new ArrayList<SearchNode>();
 		int row = node.getRow(); // row in the actual maze
 		int col = node.getCol(); // column in the actual maze
+		int rows = mazeMatrix.length; // number of rows in maze matrix
+		int cols = mazeMatrix[0].length(); // number of columns in maze matrix
 		
 		// Check up - If this space is not in the row 1, add the space above it
 		if(row > 1 && mazeMatrix[row - 1].charAt(col) != '-') {
 			// Use row - 2 to get the row of the actual space, not the row with walls in between
-			neighbors.add(new SearchNode(row - 2, col, 'N', node));
+			neighbors.add(new SearchNode(row - 2, col, mazeMatrix[row-2].charAt(col), 'N', node));
 		}
 		// Check down - If this space is not in the last row, add space below it
 		if(row < rows - 2 && mazeMatrix[row + 1].charAt(col) != '-') {
-			neighbors.add(new SearchNode(row + 2, col, 'S', node));
+			neighbors.add(new SearchNode(row + 2, col, mazeMatrix[row+2].charAt(col), 'S', node));
 		}
 		// Check left - If this space is not at left edge, add space to left
 		if(col > 1 && mazeMatrix[row].charAt(col - 1) != '|') {
-			neighbors.add(new SearchNode(row, col - 2, 'W', node));
+			neighbors.add(new SearchNode(row, col - 2, mazeMatrix[row].charAt(col-2), 'W', node));
 		}
 		// Check right - If this space is not at right edge, add space to right
 		if(col < cols - 2 && mazeMatrix[row].charAt(col + 1) != '|') {
-			neighbors.add(new SearchNode(row, col + 2, 'E', node));
+			neighbors.add(new SearchNode(row, col + 2, mazeMatrix[row].charAt(col+2), 'E', node));
 		}
 		return neighbors;
 	}
@@ -108,6 +113,9 @@ public class Maze {
 	private int getCost(SearchNode node) {
 		int row = node.getRow();
 		int col = node.getCol();
+		int rows = mazeMatrix.length;
+		int cols = mazeMatrix[0].length();
+		
 		// If we are at an edge, the cost is 11
 		if(row <= 1 || row >= rows - 2 || col <= 1 || col >= cols - 2) {
 			return 11;
