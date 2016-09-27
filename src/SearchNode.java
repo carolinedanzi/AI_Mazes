@@ -3,7 +3,7 @@
 * @version 28 September 2016
 */
 
-public class SearchNode {
+public class SearchNode implements Comparable<SearchNode>{
 	private int row;
 	private int col;
 	private char val;
@@ -28,8 +28,6 @@ public class SearchNode {
 		this.action = action;
 		this.parent = parent;
 	}
-
-
 
 	public int getRow() {
 		return row;
@@ -79,6 +77,42 @@ public class SearchNode {
 		this.parent = parent;
 	}
 	
+	@Override
+	public int compareTo(SearchNode other) {
+		return other.getCost() - this.cost;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + col;
+		result = prime * result + row;
+		result = prime * result + val;
+//		result = prime * result + cost;
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SearchNode other = (SearchNode) obj;
+		if (col != other.col)
+			return false;
+//		if (cost != other.cost)
+//			return false;
+		if (row != other.row)
+			return false;
+		if (val != other.val)
+			return false;
+		return true;
+	}
+
 	public String toString() {
 		return "row " + row + "; col " + col + "; val " + val + "; cost " + cost + "; action " + action;
 	}

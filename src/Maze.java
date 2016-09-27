@@ -9,22 +9,28 @@ import java.util.ArrayList;
  *
  */
 public class Maze {
+	private int rows;
+	private int cols;
 	private String[] mazeMatrix;
 	
-	public static void main(String[] args) {
-		// Get the maze file name from the arguments
-		String mazeFile = args[0];
-		// Create the maze
-		Maze maze = new Maze(mazeFile);
-		for(int i = 0; i < maze.mazeMatrix.length; i++) {
-			System.out.println(maze.mazeMatrix[i]);
-		}
-		ArrayList<SearchNode> nodes = maze.getNeighbors(maze.findStart());
-		for(SearchNode n : nodes) {
-			System.out.println(n.toString());
-		}
-	}
+//	public static void main(String[] args) {
+//		// Get the maze file name from the arguments
+//		String mazeFile = args[0];
+//		// Create the maze
+//		Maze maze = new Maze(mazeFile);
+//		for(int i = 0; i < maze.mazeMatrix.length; i++) {
+//			System.out.println(maze.mazeMatrix[i]);
+//		}
+//		ArrayList<SearchNode> nodes = maze.getNeighbors(maze.findStart());
+//		for(SearchNode n : nodes) {
+//			System.out.println(n.toString());
+//		}
+//	}
 	
+	/**
+	 * Constructor - creates a maze from a text file description of that maze
+	 * @param file the name of the file containing this maze
+	 */
 	public Maze(String file) {
 		parseMazeFromFile(file);
 	}
@@ -43,8 +49,8 @@ public class Maze {
 			// Multiply by 2 and add 1 to calculate the actual number of rows 
 			// and columns in the text representation of the maze
 			String rowColLine = br.readLine();
-			int rows = Integer.parseInt(rowColLine.substring(0, rowColLine.indexOf(' '))) * 2 + 1;
-			int cols = Integer.parseInt(rowColLine.substring(rowColLine.indexOf(' ') + 1)) * 2 + 1;
+			this.rows = Integer.parseInt(rowColLine.substring(0, rowColLine.indexOf(' '))) * 2 + 1;
+			this.cols = Integer.parseInt(rowColLine.substring(rowColLine.indexOf(' ') + 1)) * 2 + 1;
 			
 			// There are actually rows in between the maze rows, as
 			// well as the top and bottom rows indicating the outer walls.
@@ -62,10 +68,13 @@ public class Maze {
 		
 	}
 	
+	/**
+	 * Finds the S in the maze, which indicates the start, and creates a
+	 * SearchNode for that starting space. The node contains the row and column
+	 * within the matrix, as well as the value of 'S', a cost of 0, and no parent.
+	 * @return the SearchNode for the start of the maze
+	 */
 	public SearchNode findStart() {
-		int rows = mazeMatrix.length;
-		int cols = mazeMatrix[0].length();
-		
 		for(int row = 1; row < rows; row++) {
 			for(int col = 1; col < cols - 1; col++) {
 				if(mazeMatrix[row].charAt(col) == 'S') {
@@ -77,12 +86,29 @@ public class Maze {
 		return null;
 	}
 	
+	/**
+	 * Returns the matrix representation of this maze
+	 * @return a String array representing the maze as a matrix
+	 */
+	public String[] getMatrix() {
+		return this.mazeMatrix;
+	}
+	
+	/**
+	 * Gets the legal neighboring spaces for one space in the maze. It checks the surrounding
+	 * directions (up, down, left, right) for walls. If there is no wall, create a new SearchNode
+	 * for that space with the row, column, and node as the parent. The action is the direction
+	 * you would take from the current node (up = N, down = S, left = W, right = E). The cost
+	 * is set to 0, since some algorithms keep track of just the path cost and others the 
+	 * total cost from start. 
+	 * @param node the node whose neighbors we wish to find
+	 * @return an ArrayList of SearchNode objects that represent the legal spaces accessible
+	 *         from this node
+	 */
 	public ArrayList<SearchNode> getNeighbors(SearchNode node) {
 		ArrayList<SearchNode> neighbors = new ArrayList<SearchNode>();
 		int row = node.getRow(); // row in the actual maze
 		int col = node.getCol(); // column in the actual maze
-		int rows = mazeMatrix.length; // number of rows in maze matrix
-		int cols = mazeMatrix[0].length(); // number of columns in maze matrix
 		
 		// Check up - If this space is not in the row 1, add the space above it
 		if(row > 1 && mazeMatrix[row - 1].charAt(col) != '-') {
@@ -110,12 +136,9 @@ public class Maze {
 	 * @param node The space in the maze
 	 * @return 11 if the space is on the outer edge of the maze and 1 otherwise
 	 */
-	private int getCost(SearchNode node) {
+	public int getCost(SearchNode node) {
 		int row = node.getRow();
 		int col = node.getCol();
-		int rows = mazeMatrix.length;
-		int cols = mazeMatrix[0].length();
-		
 		// If we are at an edge, the cost is 11
 		if(row <= 1 || row >= rows - 2 || col <= 1 || col >= cols - 2) {
 			return 11;
