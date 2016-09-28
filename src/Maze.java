@@ -3,29 +3,21 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 /**
+ * Represents a maze as a String array. Reads in a text file containing a 
+ * description of the maze. This supports finding the neighbors of a space,
+ * as well as getting the cost of entering that space (an edge space costs
+ * 11 and any other space costs 1)
  * 
  * @author Caroline Danzi
  * @version 28 September 2016
- *
+ * I verify this is my own work. I did talk to Gianna Sheffield about different
+ * ways to represent the maze, but we both had independently decided to use a
+ * String array before even speaking with each other. 
  */
 public class Maze {
 	private int rows;
 	private int cols;
 	private String[] mazeMatrix;
-	
-//	public static void main(String[] args) {
-//		// Get the maze file name from the arguments
-//		String mazeFile = args[0];
-//		// Create the maze
-//		Maze maze = new Maze(mazeFile);
-//		for(int i = 0; i < maze.mazeMatrix.length; i++) {
-//			System.out.println(maze.mazeMatrix[i]);
-//		}
-//		ArrayList<SearchNode> nodes = maze.getNeighbors(maze.findStart());
-//		for(SearchNode n : nodes) {
-//			System.out.println(n.toString());
-//		}
-//	}
 	
 	/**
 	 * Constructor - creates a maze from a text file description of that maze
@@ -75,8 +67,8 @@ public class Maze {
 	 * @return the SearchNode for the start of the maze
 	 */
 	public SearchNode findStart() {
-		for(int row = 1; row < rows; row++) {
-			for(int col = 1; col < cols - 1; col++) {
+		for(int row = 1; row < rows; row+=2) {
+			for(int col = 1; col < cols - 1; col+=2) {
 				if(mazeMatrix[row].charAt(col) == 'S') {
 					SearchNode start = new SearchNode(row, col, 'S', 0, ' ', null);
 					return start;
